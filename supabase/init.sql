@@ -53,3 +53,18 @@ create table if not exists public.users (
 
 -- Add a local_password column for temporary local admin password storage (optional)
 alter table if exists public.users add column if not exists local_password text;
+
+-- Function to compute total historic sum (net + IVA) for all repairs
+create function public.total_historic_sum()
+returns numeric
+language sql
+stable
+as $$
+  select coalesce(sum(
+    (
+      coalesce((select sum((elem->>'value')::numeric) from jsonb_array_elements(servicios) as elem), 0)
+      + coalesce((select sum((elem->>'price')::numeric) from jsonb_array_elements(repuestos) as elem), 0)
+    ) * 1.19
+  ), 0)
+  from public.repairs;
+$$;

@@ -100,3 +100,12 @@ export async function deleteRepair(id: string) {
   if (error) throw error
   return true
 }
+
+/**
+ * Fetch the total historic sum (net + IVA) of all repairs via RPC
+ */
+export async function getTotalHistoric(): Promise<number> {
+  const { data, error } = await supabase.rpc('total_historic_sum')
+  if (error) throw error
+  return data as number
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { listClients } from '../services/clientService'
-import { listRepairs } from '../services/repairService'
+import { listRepairs, getTotalHistoric } from '../services/repairService'
 
 export default function Dashboard() {
   const [clientsCount, setClientsCount] = useState<number | null>(null)
@@ -10,9 +10,11 @@ export default function Dashboard() {
   const [servicesCount, setServicesCount] = useState<number | null>(null)
   const [approvedRepairs, setApprovedRepairs] = useState<number | null>(null)
   const [inProgressCount, setInProgressCount] = useState<number | null>(null)
+  const [deliveredCount, setDeliveredCount] = useState<number | null>(null)
   const [inReviewCount, setInReviewCount] = useState<number | null>(null)
   const [finishedCount, setFinishedCount] = useState<number | null>(null)
   const [canceledCount, setCanceledCount] = useState<number | null>(null)
+  const [totalHistoric, setTotalHistoric] = useState<number | null>(null)
   const [recentClients, setRecentClients] = useState<any[]>([])
   const [recentRepairs, setRecentRepairs] = useState<any[]>([])
 
@@ -34,9 +36,18 @@ export default function Dashboard() {
       // approved = paid
       setApprovedRepairs(repairs.filter((r) => (r.estado_pago || '').toString() === 'Pagado').length)
       setInProgressCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'En proceso').length)
+      setDeliveredCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'Entregado').length)
       setInReviewCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'En revisión').length)
       setFinishedCount(repairs.filter((r) => ['Terminado', 'Entregado'].includes((r.estado_reparacion || '').toString())).length)
       setCanceledCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'Cancelado').length)
+      // fetch historic total from Supabase RPC
+      try {
+        const hist = await getTotalHistoric()
+        setTotalHistoric(hist)
+      } catch (e) {
+        console.error('Error fetching historic total', e)
+        setTotalHistoric(null)
+      }
       setRecentRepairs(repairs.slice(0, 5))
     } catch (e) {
       console.error('Error loading repairs for dashboard', e)
@@ -77,16 +88,6 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-inner">
             <div className="card-left">
-              <div className="card-icon">🔧</div>
-              <div className="card-label">Servicios</div>
-            </div>
-            <div className="card-value">{servicesCount ?? '—'}</div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-inner">
-            <div className="card-left">
               <div className="card-icon">👥</div>
               <div className="card-label">Total de clientes</div>
             </div>
@@ -108,9 +109,21 @@ export default function Dashboard() {
           <div className="card-inner">
             <div className="card-left">
               <div className="card-icon">✅</div>
-              <div className="card-label">Pagadas</div>
+              <div className="card-label">Reparaciones pagadas</div>
             </div>
             <div className="card-value">{approvedRepairs ?? '—'}</div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-inner">
+            <div className="card-left">
+              <div className="card-icon">💰</div>
+              <div className="card-label">Total histórico</div>
+            </div>
+            <div className="card-value">
+              {totalHistoric !== null ? totalHistoric.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
+            </div>
           </div>
         </div>
 
@@ -127,10 +140,10 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-inner">
             <div className="card-left">
-              <div className="card-icon">🔎</div>
-              <div className="card-label">Reparaciones en revisión</div>
+              <div className="card-icon">📦</div>
+              <div className="card-label">Reparaciones entregadas</div>
             </div>
-            <div className="card-value">{inReviewCount ?? '—'}</div>
+            <div className="card-value">{deliveredCount ?? '—'}</div>
           </div>
         </div>
 
