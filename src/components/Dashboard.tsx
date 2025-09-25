@@ -7,6 +7,12 @@ export default function Dashboard() {
   const [clientsCount, setClientsCount] = useState<number | null>(null)
   const [repairsCount, setRepairsCount] = useState<number | null>(null)
   const [pendingRepairs, setPendingRepairs] = useState<number | null>(null)
+  const [servicesCount, setServicesCount] = useState<number | null>(null)
+  const [approvedRepairs, setApprovedRepairs] = useState<number | null>(null)
+  const [inProgressCount, setInProgressCount] = useState<number | null>(null)
+  const [inReviewCount, setInReviewCount] = useState<number | null>(null)
+  const [finishedCount, setFinishedCount] = useState<number | null>(null)
+  const [canceledCount, setCanceledCount] = useState<number | null>(null)
   const [recentClients, setRecentClients] = useState<any[]>([])
   const [recentRepairs, setRecentRepairs] = useState<any[]>([])
 
@@ -21,7 +27,16 @@ export default function Dashboard() {
     try {
       const repairs = await listRepairs()
       setRepairsCount(repairs.length)
-      setPendingRepairs(repairs.filter((r) => r.estado_reparacion === 'En proceso' || r.estado_reparacion === 'Pendiente').length)
+      // derive counts for dashboard tiles
+      setServicesCount(repairs.reduce((acc: number, r: any) => acc + ((r.servicios || []).length || 0), 0))
+      // pending = pending payment
+      setPendingRepairs(repairs.filter((r) => (r.estado_pago || '').toString() === 'Pendiente').length)
+      // approved = paid
+      setApprovedRepairs(repairs.filter((r) => (r.estado_pago || '').toString() === 'Pagado').length)
+      setInProgressCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'En proceso').length)
+      setInReviewCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'En revisión').length)
+      setFinishedCount(repairs.filter((r) => ['Terminado', 'Entregado'].includes((r.estado_reparacion || '').toString())).length)
+      setCanceledCount(repairs.filter((r) => (r.estado_reparacion || '').toString() === 'Cancelado').length)
       setRecentRepairs(repairs.slice(0, 5))
     } catch (e) {
       console.error('Error loading repairs for dashboard', e)
@@ -65,7 +80,7 @@ export default function Dashboard() {
               <div className="card-icon">🔧</div>
               <div className="card-label">Servicios</div>
             </div>
-            <div className="card-value">1</div>
+            <div className="card-value">{servicesCount ?? '—'}</div>
           </div>
         </div>
 
@@ -93,9 +108,9 @@ export default function Dashboard() {
           <div className="card-inner">
             <div className="card-left">
               <div className="card-icon">✅</div>
-              <div className="card-label">Reparaciones aprobadas</div>
+              <div className="card-label">Pagadas</div>
             </div>
-            <div className="card-value">0</div>
+            <div className="card-value">{approvedRepairs ?? '—'}</div>
           </div>
         </div>
 
@@ -103,9 +118,9 @@ export default function Dashboard() {
           <div className="card-inner">
             <div className="card-left">
               <div className="card-icon">🔨</div>
-              <div className="card-label">En progreso</div>
+              <div className="card-label">Reparaciones en proceso</div>
             </div>
-            <div className="card-value">0</div>
+            <div className="card-value">{inProgressCount ?? '—'}</div>
           </div>
         </div>
 
@@ -113,9 +128,9 @@ export default function Dashboard() {
           <div className="card-inner">
             <div className="card-left">
               <div className="card-icon">🔎</div>
-              <div className="card-label">En revisión</div>
+              <div className="card-label">Reparaciones en revisión</div>
             </div>
-            <div className="card-value">0</div>
+            <div className="card-value">{inReviewCount ?? '—'}</div>
           </div>
         </div>
 
@@ -123,9 +138,9 @@ export default function Dashboard() {
           <div className="card-inner">
             <div className="card-left">
               <div className="card-icon">🏁</div>
-              <div className="card-label">Finalizadas</div>
+              <div className="card-label">Reparaciones finalizadas</div>
             </div>
-            <div className="card-value">0</div>
+            <div className="card-value">{finishedCount ?? '—'}</div>
           </div>
         </div>
 
@@ -135,7 +150,7 @@ export default function Dashboard() {
               <div className="card-icon">❌</div>
               <div className="card-label">Canceladas</div>
             </div>
-            <div className="card-value">0</div>
+            <div className="card-value">{canceledCount ?? '—'}</div>
           </div>
         </div>
       </div>

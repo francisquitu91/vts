@@ -3,24 +3,47 @@ import React from 'react'
 type Page = 'dashboard' | 'clients' | 'repairs' | 'users' | 'settings'
 
 export default function Sidebar({ onNavigate, onLogout, page }: { onNavigate: (p: Page) => void, onLogout?: () => void, page?: Page }) {
+  const [collapsed, setCollapsed] = React.useState(false)
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    function onResize() {
+      const mobile = window.innerWidth < 900
+      setIsMobile(mobile)
+      // if switching to mobile, start collapsed; if switching to desktop, ensure expanded
+      if (mobile) setCollapsed(true)
+      else setCollapsed(false)
+    }
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
   function Item({ id, label, icon }: { id: Page, label: string, icon: React.ReactNode }) {
     const active = page === id
     return (
       <li className={"side-item" + (active ? ' active' : '')} onClick={() => onNavigate(id)}>
         <span className="side-icon">{icon}</span>
-        <span className="side-label">{label}</span>
+        {!collapsed && <span className="side-label">{label}</span>}
       </li>
     )
   }
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <aside className="sidebar">
+      <aside className={"sidebar" + (collapsed ? ' collapsed' : '')}>
         <div className="sidebar-top">
-          <div className="sidebar-logo-wrap">
-            <img src="https://static.vecteezy.com/system/resources/previews/003/241/622/non_2x/network-connections-icon-vector.jpg" alt="logo" className="sidebar-logo" />
+          <div style={{display:'flex',alignItems:'center',gap:8,width:'100%'}}>
+            <div className="sidebar-logo-wrap">
+              <img src="https://static.vecteezy.com/system/resources/previews/003/241/622/non_2x/network-connections-icon-vector.jpg" alt="logo" className="sidebar-logo" />
+            </div>
+            {!collapsed && <div className="sidebar-title">VTS</div>}
+            <button className="collapse-toggle" aria-label={collapsed ? 'Expandir barra' : 'Contraer barra'} onClick={() => setCollapsed((s) => !s)} style={{marginLeft:'auto',background:'transparent',border:0,cursor:'pointer'}}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z" fill="currentColor" />
+              </svg>
+            </button>
           </div>
-          <div className="sidebar-title">VTS</div>
         </div>
 
         <ul className="side-list">
@@ -34,8 +57,26 @@ export default function Sidebar({ onNavigate, onLogout, page }: { onNavigate: (p
       </ul>
 
       <div className="sidebar-bottom">
-        {onLogout && <button onClick={onLogout} className="btn logout-btn">Cerrar sesión</button>}
+        {onLogout && (
+          <button onClick={onLogout} className="btn logout-btn">
+            {collapsed ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3H4c-1.1 0-2 .9-2 2v2h2V5h16v14H4v-2H2v2c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
+            ) : (
+              'Cerrar sesión'
+            )}
+          </button>
+        )}
+        {collapsed && (
+          <button className="expand-toggle" aria-label="Expandir barra" onClick={() => setCollapsed(false)} style={{marginTop:8,background:'rgba(255,255,255,0.12)',border:0,cursor:'pointer',width:40,height:40,borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff'}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12l-4.58 4.59z" fill="currentColor" />
+            </svg>
+          </button>
+        )}
       </div>
+        {isMobile && !collapsed && (
+          <div className="sidebar-overlay" onClick={() => setCollapsed(true)} />
+        )}
       </aside>
       <div className="brand-top">
         <div className="brand-row">

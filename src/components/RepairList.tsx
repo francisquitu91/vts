@@ -134,11 +134,12 @@ export default function RepairList() {
   const [appliedFilters, setAppliedFilters] = useState({
     from: '', to: '', estadoPago: '', estadoProceso: '', tipoPago: '', tipoDcto: ''
   })
-  const [appliedQuery, setAppliedQuery] = useState('')
+  // search is live and independent from the "Filtrar" button
 
   function applyFilters() {
+    // Only apply the explicit filters (dates, estados, tipo pago/dcto).
+    // The search input (`query`) is live and filtered immediately, so we don't touch it here.
     setAppliedFilters({ from: filterFrom, to: filterTo, estadoPago: filterEstadoPago, estadoProceso: filterEstadoProceso, tipoPago: filterTipoPago, tipoDcto: filterTipoDcto })
-    setAppliedQuery(query)
   }
 
   function clearFilters() {
@@ -148,9 +149,8 @@ export default function RepairList() {
     setFilterEstadoProceso('')
     setFilterTipoPago('')
     setFilterTipoDcto('')
-    setQuery('')
+    // Clear only the explicit filters; keep the search input intact so the user can continue searching.
     setAppliedFilters({ from: '', to: '', estadoPago: '', estadoProceso: '', tipoPago: '', tipoDcto: '' })
-    setAppliedQuery('')
   }
 
   return (
@@ -216,9 +216,15 @@ export default function RepairList() {
           </div>
         </div>
         <div style={{ marginLeft: 12 }}>
-          <input className="repairs-search" placeholder="Buscar por Nro, Cliente, Equipo, Marca, Modelo, Serie o Observación..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input
+            className="repairs-search"
+            placeholder="Buscar por Nro, Cliente, Equipo, Marca, Modelo, Serie o Observación..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
       </div>
+
 
   {loading ? <div>Cargando...</div> : (
   <div className="table-wrap">
@@ -264,9 +270,41 @@ export default function RepairList() {
             if (appliedFilters.tipoPago && (r.tipo_pago || '') !== appliedFilters.tipoPago) return false
             if (appliedFilters.tipoDcto && (r.tipo_dcto || '') !== appliedFilters.tipoDcto) return false
 
-            if (!appliedQuery) return true
-            const q = appliedQuery.toLowerCase()
-            return [r.nro, r.client_name, r.tipo_equipo, r.marca, r.modelo, r.serie, r.observacion].some((f) => (f || '').toString().toLowerCase().includes(q))
+            // live search: use the current query input
+            if (!query) return true
+            const q = query.toLowerCase()
+            // include date (formatted), estado_pago, falla, accesorios and numeric totals in search
+            const dateStr = (() => {
+              try {
+                const d = new Date(r.created_at || '')
+                return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
+              } catch (e) { return '' }
+            })()
+            const servicios = r.servicios || []
+            const repuestos = r.repuestos || []
+            const netVal = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+            const ivaVal = +(netVal * 0.19).toFixed(2)
+            const totalVal = +(netVal + ivaVal).toFixed(2)
+
+            const candidates = [
+              r.nro,
+              r.client_name,
+              r.client_rut,
+              r.tipo_equipo,
+              r.marca,
+              r.modelo,
+              r.serie,
+              r.observacion,
+              r.falla,
+              r.accesorios,
+              r.estado_pago,
+              dateStr,
+              netVal.toString(),
+              ivaVal.toString(),
+              totalVal.toString()
+            ]
+
+            return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
           }).map((r, i) => {
             const servicios = r.servicios || []
             const repuestos = r.repuestos || []
