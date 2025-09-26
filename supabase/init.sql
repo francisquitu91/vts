@@ -55,7 +55,8 @@ create table if not exists public.users (
 alter table if exists public.users add column if not exists local_password text;
 
 -- Function to compute total historic sum (net + IVA) for all repairs
-create function public.total_historic_sum()
+-- Use CREATE OR REPLACE to make this idempotent when re-applying the script
+create or replace function public.total_historic_sum()
 returns numeric
 language sql
 stable
@@ -68,3 +69,24 @@ as $$
   ), 0)
   from public.repairs;
 $$;
+
+-- Brands and Models tables for device metadata
+create table if not exists public.brands (
+  id uuid primary key default uuid_generate_v4(),
+  name text unique not null,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.models (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  brand_id uuid references public.brands(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+-- Device types table (Tipo Equipo autogestionable)
+create table if not exists public.device_types (
+  id uuid primary key default uuid_generate_v4(),
+  name text unique not null,
+  created_at timestamptz default now()
+);

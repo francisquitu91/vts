@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { listRepairs, createRepair, updateRepair, deleteRepair, RepairRecord } from '../services/repairService'
 import { listClients } from '../services/clientService'
 import { supabaseConfigured } from '../lib/supabase'
+import { listBrands } from '../services/brandService'
+import { listDeviceTypes } from '../services/deviceTypeService'
 
 export type ServiceItem = { id: string; description: string; value: number }
 export type PartItem = { id: string; name: string; price: number }
@@ -40,6 +42,8 @@ export default function RepairList() {
   const [editing, setEditing] = useState<RepairRecord | null>(null)
   const [clients, setClients] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [brands, setBrands] = useState<any[]>([])
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([])
   const [query, setQuery] = useState('')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
@@ -49,6 +53,30 @@ export default function RepairList() {
   const [filterTipoDcto, setFilterTipoDcto] = useState('')
 
   useEffect(() => { fetchRepairs(); fetchClients() }, [])
+
+  useEffect(() => { fetchBrands() }, [])
+
+  useEffect(() => { fetchDeviceTypes() }, [])
+
+  async function fetchDeviceTypes() {
+    try {
+      const data = await listDeviceTypes()
+      setDeviceTypes(data || [])
+    } catch (e) {
+      console.warn('failed to load device types', e)
+      setDeviceTypes([])
+    }
+  }
+
+  async function fetchBrands() {
+    try {
+      const data = await listBrands()
+      setBrands(data || [])
+    } catch (e) {
+      console.warn('failed to load brands', e)
+      setBrands([])
+    }
+  }
 
   async function fetchRepairs() {
     setLoading(true)
@@ -343,7 +371,7 @@ export default function RepairList() {
       )}
 
       {showForm && editing && (
-        <RepairForm initial={editing} clients={clients} onCancel={() => { setShowForm(false); setEditing(null) }} onSave={save} />
+        <RepairForm initial={editing} clients={clients} brands={brands} deviceTypes={deviceTypes} onCancel={() => { setShowForm(false); setEditing(null) }} onSave={save} />
       )}
 
       {/* Floating action button */}
@@ -352,7 +380,7 @@ export default function RepairList() {
   )
 }
 
-function RepairForm({ initial, onSave, onCancel, clients }: { initial: RepairRecord, onSave: (r: RepairRecord) => void, onCancel: () => void, clients: any[] }) {
+function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }: { initial: RepairRecord, onSave: (r: RepairRecord) => void, onCancel: () => void, clients: any[], brands: any[], deviceTypes: any[] }) {
   const [data, setData] = useState<RepairRecord>(initial)
   const [svcDesc, setSvcDesc] = useState('')
   const [svcVal, setSvcVal] = useState('0')
@@ -591,14 +619,6 @@ Centro Autorizado DELL V Región
             <label>Teléfono</label>
             <input value={data.telefono || ''} onChange={(e) => update('telefono', e.target.value)} />
           </div>
-          <div>
-            <label>Tipo Pago</label>
-            <select value={data.tipo_pago || ''} onChange={(e) => update('tipo_pago', e.target.value)}>
-              <option>Efectivo</option>
-              <option>Tarjeta</option>
-              <option>Otro</option>
-            </select>
-          </div>
         </div>
 
         <div className="form-row">
@@ -632,24 +652,17 @@ Centro Autorizado DELL V Región
           <div>
             <label>Tipo Equipo</label>
             <select value={data.tipo_equipo || ''} onChange={(e) => update('tipo_equipo', e.target.value)}>
-              <option>PC</option>
-              <option>Notebook</option>
-              <option>Mac</option>
-              <option>Tablet</option>
-              <option>Impresora</option>
-              <option>Otro</option>
+              <option value="">-- Seleccionar tipo --</option>
+              {deviceTypes.map((d: any) => <option key={d.id} value={d.name}>{d.name}</option>)}
+              <option value="Otro">Otro</option>
             </select>
           </div>
           <div>
             <label>Marca</label>
             <select value={data.marca || ''} onChange={(e) => update('marca', e.target.value)}>
-              <option>Dell</option>
-              <option>HP</option>
-              <option>Asus</option>
-              <option>Lenovo</option>
-              <option>Acer</option>
-              <option>Apple</option>
-              <option>Otro</option>
+              <option value="">-- Seleccionar marca --</option>
+              {brands.map((b: any) => <option key={b.id} value={b.name}>{b.name}</option>)}
+              <option value="Otro">Otro</option>
             </select>
           </div>
           <div>
@@ -669,7 +682,7 @@ Centro Autorizado DELL V Región
           </div>
           <div>
             <label>Observación</label>
-            <input value={data.observacion || ''} onChange={(e) => update('observacion', e.target.value)} />
+            <textarea value={data.observacion || ''} onChange={(e) => update('observacion', e.target.value)} />
           </div>
         </div>
 
