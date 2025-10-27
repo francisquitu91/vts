@@ -450,18 +450,24 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
         <meta charset="utf-8" />
         <title>Reparación ${r.nro}</title>
         <style>
-          body{font-family:Arial,Helvetica,sans-serif;padding:24px;color:#333}
-          .header{display:flex;align-items:center;gap:16px}
-          .company{margin-left:12px}
-          .section{margin-top:24px}
-          table{width:100%;border-collapse:collapse}
-          .totals td{padding:12px;border:1px solid #ddd}
-          .signature{margin-top:18px;white-space:pre-line}
+          @page { size: auto; margin: 10mm; }
+          body{font-family:Arial,Helvetica,sans-serif;padding:8px;color:#333;font-size:11px;margin:0}
+          .header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+          .company{margin-left:8px;font-size:10px;line-height:1.3}
+          .company div{margin:1px 0}
+          h2{font-size:13px;margin:8px 0 4px 0;border-bottom:1px solid #ddd;padding-bottom:2px}
+          h3{font-size:12px;margin:8px 0 4px 0}
+          .section{margin-top:8px}
+          table{width:100%;border-collapse:collapse;font-size:10px}
+          td,th{padding:3px 6px}
+          .totals td{padding:4px 8px;border:1px solid #ddd}
+          .signature{margin-top:8px;white-space:pre-line;font-size:10px;line-height:1.3}
+          hr{margin:6px 0;border:none;border-top:1px solid #ddd}
         </style>
       </head>
       <body>
         <div class="header">
-          <img src="${logo}" style="width:180px" />
+          <img src="${logo}" style="width:120px" />
           <div class="company">
             <div><strong>Valpotec</strong></div>
             <div>Av. Valparaíso 694 Of. 112-C - Viña del Mar</div>
@@ -472,36 +478,36 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
         <hr />
 
         <h2>Datos de Contacto</h2>
-        <table style="margin-top:8px">
-          <tr><td style="width:220px;font-weight:600;padding:8px;border:1px solid #eee">Tipo Dcto</td><td style="padding:8px;border:1px solid #eee">${r.tipo_dcto || ''} - ${r.nro || ''}</td></tr>
-          <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Fecha</td><td style="padding:8px;border:1px solid #eee">${when}</td></tr>
-          <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Cliente</td><td style="padding:8px;border:1px solid #eee">${r.client_name || ''} ${r.client_rut ? ` - Rut: ${r.client_rut}` : ''}</td></tr>
-          <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Contacto</td><td style="padding:8px;border:1px solid #eee">${r.correo || ''}${r.correo && r.telefono ? ' - ' : ''}${r.telefono || ''}</td></tr>
-          <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Tipo de Pago</td><td style="padding:8px;border:1px solid #eee">${r.tipo_pago || ''}</td></tr>
-          <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Requerimiento</td><td style="padding:8px;border:1px solid #eee">${r.falla || ''}</td></tr>
+        <table style="margin-top:4px">
+          <tr><td style="width:140px;font-weight:600;padding:3px 6px;border:1px solid #eee">Tipo Dcto</td><td style="padding:3px 6px;border:1px solid #eee">${r.tipo_dcto || ''} - ${r.nro || ''}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Fecha</td><td style="padding:3px 6px;border:1px solid #eee">${when}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Cliente</td><td style="padding:3px 6px;border:1px solid #eee">${r.client_name || ''} ${r.client_rut ? ` - Rut: ${r.client_rut}` : ''}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Contacto</td><td style="padding:3px 6px;border:1px solid #eee">${r.correo || ''}${r.correo && r.telefono ? ' - ' : ''}${r.telefono || ''}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Tipo de Pago</td><td style="padding:3px 6px;border:1px solid #eee">${r.tipo_pago || ''}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Requerimiento</td><td style="padding:3px 6px;border:1px solid #eee">${r.falla || ''}</td></tr>
         </table>
 
         <div class="section">
           <h3>Información Equipo</h3>
-          <table style="margin-top:8px">
-            <tr><td style="width:220px;font-weight:600;padding:8px;border:1px solid #eee">Tipo Equipo</td><td style="padding:8px;border:1px solid #eee">${r.tipo_equipo || ''}</td></tr>
-            <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Marca</td><td style="padding:8px;border:1px solid #eee">${r.marca || ''}</td></tr>
-            <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Modelo</td><td style="padding:8px;border:1px solid #eee">${r.modelo || ''}</td></tr>
-            <tr><td style="font-weight:600;padding:8px;border:1px solid #eee">Serie</td><td style="padding:8px;border:1px solid #eee">${r.serie || ''}</td></tr>
+          <table style="margin-top:4px">
+            <tr><td style="width:140px;font-weight:600;padding:3px 6px;border:1px solid #eee">Tipo Equipo</td><td style="padding:3px 6px;border:1px solid #eee">${r.tipo_equipo || ''}</td></tr>
+            <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Marca</td><td style="padding:3px 6px;border:1px solid #eee">${r.marca || ''}</td></tr>
+            <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Modelo</td><td style="padding:3px 6px;border:1px solid #eee">${r.modelo || ''}</td></tr>
+            <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Serie</td><td style="padding:3px 6px;border:1px solid #eee">${r.serie || ''}</td></tr>
           </table>
         </div>
 
         <div class="section">
           <h3>Observaciones</h3>
-          <div style="padding:8px;border:1px solid #eee;background:#fff">${r.observacion || '-'}</div>
+          <div style="padding:4px 6px;border:1px solid #eee;background:#fff;font-size:10px">${r.observacion || '-'}</div>
         </div>
 
         <div class="section">
           <h3>Servicios</h3>
           <table>
-            <thead><tr><th style="text-align:left;padding:8px;background:#f7f7f7;border:1px solid #eee">Detalle de Servicios</th><th style="text-align:right;padding:8px;background:#f7f7f7;border:1px solid #eee">Precio</th></tr></thead>
+            <thead><tr><th style="text-align:left;padding:3px 6px;background:#f7f7f7;border:1px solid #eee">Detalle de Servicios</th><th style="text-align:right;padding:3px 6px;background:#f7f7f7;border:1px solid #eee">Precio</th></tr></thead>
             <tbody>
-              ${rowsServicios || '<tr><td style="padding:8px;border-bottom:1px solid #eee">-</td><td style="padding:8px;border-bottom:1px solid #eee">-</td></tr>'}
+              ${rowsServicios || '<tr><td style="padding:3px 6px;border-bottom:1px solid #eee">-</td><td style="padding:3px 6px;border-bottom:1px solid #eee">-</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -509,16 +515,16 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
         <div class="section">
           <h3>Repuestos</h3>
           <table>
-            <thead><tr><th style="text-align:left;padding:8px;background:#f7f7f7;border:1px solid #eee">Detalle de Repuestos</th><th style="text-align:right;padding:8px;background:#f7f7f7;border:1px solid #eee">Precio</th></tr></thead>
+            <thead><tr><th style="text-align:left;padding:3px 6px;background:#f7f7f7;border:1px solid #eee">Detalle de Repuestos</th><th style="text-align:right;padding:3px 6px;background:#f7f7f7;border:1px solid #eee">Precio</th></tr></thead>
             <tbody>
-              ${rowsRepuestos || '<tr><td style="padding:8px;border-bottom:1px solid #eee">-</td><td style="padding:8px;border-bottom:1px solid #eee">-</td></tr>'}
+              ${rowsRepuestos || '<tr><td style="padding:3px 6px;border-bottom:1px solid #eee">-</td><td style="padding:3px 6px;border-bottom:1px solid #eee">-</td></tr>'}
             </tbody>
           </table>
         </div>
 
         <div class="section">
           <h3>Totales</h3>
-          <table class="totals" style="width:60%">
+          <table class="totals" style="width:50%">
             <tr><td style="font-weight:600">Valor Neto</td><td style="text-align:right">${formatCurrency(net)}</td></tr>
             <tr><td style="font-weight:600">I.V.A.</td><td style="text-align:right">${formatCurrency(iva)}</td></tr>
             <tr><td style="font-weight:600">Total</td><td style="text-align:right">${formatCurrency(total)}</td></tr>
