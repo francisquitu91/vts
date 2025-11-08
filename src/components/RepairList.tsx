@@ -181,6 +181,162 @@ export default function RepairList() {
     setAppliedFilters({ from: '', to: '', estadoPago: '', estadoProceso: '', tipoPago: '', tipoDcto: '' })
   }
 
+  function printReport() {
+    // Get filtered repairs
+    const filteredRepairs = repairs.filter((r) => {
+      if (appliedFilters.from) {
+        const d = new Date(r.created_at || '')
+        if (isNaN(d.getTime()) || d < new Date(appliedFilters.from)) return false
+      }
+      if (appliedFilters.to) {
+        const d = new Date(r.created_at || '')
+        const toEnd = new Date(appliedFilters.to)
+        toEnd.setHours(23,59,59,999)
+        if (isNaN(d.getTime()) || d > toEnd) return false
+      }
+      if (appliedFilters.estadoPago && (r.estado_pago || '') !== appliedFilters.estadoPago) return false
+      if (appliedFilters.estadoProceso && (r.estado_reparacion || '') !== appliedFilters.estadoProceso) return false
+      if (appliedFilters.tipoPago && (r.tipo_pago || '') !== appliedFilters.tipoPago) return false
+      if (appliedFilters.tipoDcto && (r.tipo_dcto || '') !== appliedFilters.tipoDcto) return false
+      if (!query) return true
+      const q = query.toLowerCase()
+      const dateStr = (() => {
+        try {
+          const d = new Date(r.created_at || '')
+          return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
+        } catch (e) { return '' }
+      })()
+      const servicios = r.servicios || []
+      const repuestos = r.repuestos || []
+      const netVal = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+      const ivaVal = +(netVal * 0.19).toFixed(2)
+      const totalVal = +(netVal + ivaVal).toFixed(2)
+      const candidates = [
+        r.nro, r.client_name, r.client_rut, r.tipo_equipo, r.marca, r.modelo, r.serie,
+        r.observacion, r.falla, r.accesorios, r.estado_pago, dateStr,
+        netVal.toString(), ivaVal.toString(), totalVal.toString()
+      ]
+      return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
+    })
+
+    // Calculate totals
+    const totalNeto = filteredRepairs.reduce((sum, r) => {
+      const servicios = r.servicios || []
+      const repuestos = r.repuestos || []
+      const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+      return sum + net
+    }, 0)
+    const totalIva = +(totalNeto * 0.19).toFixed(2)
+    const total = +(totalNeto + totalIva).toFixed(2)
+
+    const logo = 'https://valpotec.cl/wp-content/uploads/2024/07/LOGO.png'
+    const reportDate = new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
+    
+    const rows = filteredRepairs.map((r, i) => {
+      const servicios = r.servicios || []
+      const repuestos = r.repuestos || []
+      const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+      const iva = +(net * 0.19).toFixed(2)
+      const tot = +(net + iva).toFixed(2)
+      return `<tr>
+        <td style="padding:4px 6px;border:1px solid #ddd;text-align:center">${i + 1}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd">${new Date(r.created_at || '').toLocaleDateString()}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd">${r.nro || ''}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd">${r.client_name || '-'}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd">${r.estado_pago || ''}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd">${r.tipo_equipo || ''}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;text-align:right">${net.toLocaleString()}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;text-align:right">${iva.toLocaleString()}</td>
+        <td style="padding:4px 6px;border:1px solid #ddd;text-align:right">${tot.toLocaleString()}</td>
+      </tr>`
+    }).join('')
+
+    const html = `
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Informe de Reparaciones - ${reportDate}</title>
+        <style>
+          @page { size: landscape; margin: 10mm; }
+          body{font-family:Arial,Helvetica,sans-serif;padding:12px;color:#333;font-size:11px;margin:0}
+          .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #333}
+          .logo-section{display:flex;align-items:center;gap:12px}
+          .company{font-size:10px;line-height:1.4}
+          h1{font-size:18px;margin:0;color:#333}
+          h2{font-size:14px;margin:8px 0;color:#555}
+          table{width:100%;border-collapse:collapse;font-size:10px;margin-top:12px}
+          th{background:#f0f0f0;padding:6px;border:1px solid #999;font-weight:600;text-align:left}
+          td{padding:4px 6px;border:1px solid #ddd}
+          .totals{margin-top:16px;text-align:right;font-size:12px;font-weight:600}
+          .totals div{margin:4px 0}
+          @media print { button{display:none} }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo-section">
+            <img src="${logo}" style="width:100px" />
+            <div class="company">
+              <div><strong>Valpotec</strong></div>
+              <div>Av. Valparaíso 694 Of. 112-C - Viña del Mar</div>
+              <div>servicios@valpotec.cl | +56 9 97919374</div>
+              <div>www.valpotec.cl</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <h1>Informe de Reparaciones</h1>
+            <div style="font-size:11px;color:#666">${reportDate}</div>
+          </div>
+        </div>
+
+        <h2>Resumen de Órdenes de Trabajo</h2>
+        <div style="font-size:10px;color:#666;margin-bottom:8px">Total de registros: ${filteredRepairs.length}</div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Fecha</th>
+              <th>Nro OT</th>
+              <th>Cliente</th>
+              <th>Estado Pago</th>
+              <th>Tipo Equipo</th>
+              <th style="text-align:right">Neto</th>
+              <th style="text-align:right">IVA</th>
+              <th style="text-align:right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div>Neto Total: <span style="color:#28a745">$${totalNeto.toLocaleString()}</span></div>
+          <div>IVA (19%): <span style="color:#17a2b8">$${totalIva.toLocaleString()}</span></div>
+          <div>Total General: <span style="color:#007bff;font-size:14px">$${total.toLocaleString()}</span></div>
+        </div>
+
+        <script>setTimeout(()=>{window.print();},250);</script>
+      </body>
+      </html>
+    `
+
+    try {
+      const blob = new Blob([html], { type: 'text/html' })
+      const urlBlob = URL.createObjectURL(blob)
+      const w = window.open(urlBlob, '_blank', 'noopener')
+      if (w) {
+        setTimeout(() => { try { URL.revokeObjectURL(urlBlob) } catch (e) {} }, 5000)
+      } else {
+        alert('Por favor permita ventanas emergentes para imprimir el informe')
+      }
+    } catch (err) {
+      console.error('[printReport] error:', err)
+      alert('Error generando informe')
+    }
+  }
+
   return (
     <div className="repairs">
       {!supabaseConfigured && (
@@ -243,6 +399,186 @@ export default function RepairList() {
             <button type="button" className="btn" onClick={clearFilters}>Limpiar</button>
           </div>
         </div>
+        {/* Totals summary bar - simple table style */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '8px',
+          alignItems: 'center',
+          padding: '8px 12px',
+          background: 'linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%)',
+          borderBottom: '2px solid #495057',
+          marginTop: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1' }}>
+            <span style={{ fontSize: '11px', fontWeight: '600', color: '#495057', textTransform: 'uppercase' }}>NETO:</span>
+            <span style={{ color: '#28a745', fontSize: '14px', fontWeight: '700' }}>
+              ${(() => {
+                const filteredRepairs = repairs.filter((r) => {
+                  if (appliedFilters.from) {
+                    const d = new Date(r.created_at || '')
+                    if (isNaN(d.getTime()) || d < new Date(appliedFilters.from)) return false
+                  }
+                  if (appliedFilters.to) {
+                    const d = new Date(r.created_at || '')
+                    const toEnd = new Date(appliedFilters.to)
+                    toEnd.setHours(23,59,59,999)
+                    if (isNaN(d.getTime()) || d > toEnd) return false
+                  }
+                  if (appliedFilters.estadoPago && (r.estado_pago || '') !== appliedFilters.estadoPago) return false
+                  if (appliedFilters.estadoProceso && (r.estado_reparacion || '') !== appliedFilters.estadoProceso) return false
+                  if (appliedFilters.tipoPago && (r.tipo_pago || '') !== appliedFilters.tipoPago) return false
+                  if (appliedFilters.tipoDcto && (r.tipo_dcto || '') !== appliedFilters.tipoDcto) return false
+                  if (!query) return true
+                  const q = query.toLowerCase()
+                  const dateStr = (() => {
+                    try {
+                      const d = new Date(r.created_at || '')
+                      return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
+                    } catch (e) { return '' }
+                  })()
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const netVal = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  const ivaVal = +(netVal * 0.19).toFixed(2)
+                  const totalVal = +(netVal + ivaVal).toFixed(2)
+                  const candidates = [
+                    r.nro, r.client_name, r.client_rut, r.tipo_equipo, r.marca, r.modelo, r.serie,
+                    r.observacion, r.falla, r.accesorios, r.estado_pago, dateStr,
+                    netVal.toString(), ivaVal.toString(), totalVal.toString()
+                  ]
+                  return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
+                })
+                const totalNeto = filteredRepairs.reduce((sum, r) => {
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  return sum + net
+                }, 0)
+                return totalNeto.toLocaleString('es-CL')
+              })()}
+            </span>
+          </div>
+          <div style={{ width: '1px', height: '20px', background: '#adb5bd' }}></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1' }}>
+            <span style={{ fontSize: '11px', fontWeight: '600', color: '#495057', textTransform: 'uppercase' }}>IVA:</span>
+            <span style={{ color: '#17a2b8', fontSize: '14px', fontWeight: '700' }}>
+              ${(() => {
+                const filteredRepairs = repairs.filter((r) => {
+                  if (appliedFilters.from) {
+                    const d = new Date(r.created_at || '')
+                    if (isNaN(d.getTime()) || d < new Date(appliedFilters.from)) return false
+                  }
+                  if (appliedFilters.to) {
+                    const d = new Date(r.created_at || '')
+                    const toEnd = new Date(appliedFilters.to)
+                    toEnd.setHours(23,59,59,999)
+                    if (isNaN(d.getTime()) || d > toEnd) return false
+                  }
+                  if (appliedFilters.estadoPago && (r.estado_pago || '') !== appliedFilters.estadoPago) return false
+                  if (appliedFilters.estadoProceso && (r.estado_reparacion || '') !== appliedFilters.estadoProceso) return false
+                  if (appliedFilters.tipoPago && (r.tipo_pago || '') !== appliedFilters.tipoPago) return false
+                  if (appliedFilters.tipoDcto && (r.tipo_dcto || '') !== appliedFilters.tipoDcto) return false
+                  if (!query) return true
+                  const q = query.toLowerCase()
+                  const dateStr = (() => {
+                    try {
+                      const d = new Date(r.created_at || '')
+                      return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
+                    } catch (e) { return '' }
+                  })()
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const netVal = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  const ivaVal = +(netVal * 0.19).toFixed(2)
+                  const totalVal = +(netVal + ivaVal).toFixed(2)
+                  const candidates = [
+                    r.nro, r.client_name, r.client_rut, r.tipo_equipo, r.marca, r.modelo, r.serie,
+                    r.observacion, r.falla, r.accesorios, r.estado_pago, dateStr,
+                    netVal.toString(), ivaVal.toString(), totalVal.toString()
+                  ]
+                  return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
+                })
+                const totalNeto = filteredRepairs.reduce((sum, r) => {
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  return sum + net
+                }, 0)
+                const totalIva = +(totalNeto * 0.19).toFixed(2)
+                return totalIva.toLocaleString('es-CL')
+              })()}
+            </span>
+          </div>
+          <div style={{ width: '1px', height: '20px', background: '#adb5bd' }}></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1' }}>
+            <span style={{ fontSize: '11px', fontWeight: '600', color: '#495057', textTransform: 'uppercase' }}>TOTAL:</span>
+            <span style={{ color: '#007bff', fontSize: '16px', fontWeight: '700' }}>
+              ${(() => {
+                const filteredRepairs = repairs.filter((r) => {
+                  if (appliedFilters.from) {
+                    const d = new Date(r.created_at || '')
+                    if (isNaN(d.getTime()) || d < new Date(appliedFilters.from)) return false
+                  }
+                  if (appliedFilters.to) {
+                    const d = new Date(r.created_at || '')
+                    const toEnd = new Date(appliedFilters.to)
+                    toEnd.setHours(23,59,59,999)
+                    if (isNaN(d.getTime()) || d > toEnd) return false
+                  }
+                  if (appliedFilters.estadoPago && (r.estado_pago || '') !== appliedFilters.estadoPago) return false
+                  if (appliedFilters.estadoProceso && (r.estado_reparacion || '') !== appliedFilters.estadoProceso) return false
+                  if (appliedFilters.tipoPago && (r.tipo_pago || '') !== appliedFilters.tipoPago) return false
+                  if (appliedFilters.tipoDcto && (r.tipo_dcto || '') !== appliedFilters.tipoDcto) return false
+                  if (!query) return true
+                  const q = query.toLowerCase()
+                  const dateStr = (() => {
+                    try {
+                      const d = new Date(r.created_at || '')
+                      return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
+                    } catch (e) { return '' }
+                  })()
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const netVal = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  const ivaVal = +(netVal * 0.19).toFixed(2)
+                  const totalVal = +(netVal + ivaVal).toFixed(2)
+                  const candidates = [
+                    r.nro, r.client_name, r.client_rut, r.tipo_equipo, r.marca, r.modelo, r.serie,
+                    r.observacion, r.falla, r.accesorios, r.estado_pago, dateStr,
+                    netVal.toString(), ivaVal.toString(), totalVal.toString()
+                  ]
+                  return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
+                })
+                const totalNeto = filteredRepairs.reduce((sum, r) => {
+                  const servicios = r.servicios || []
+                  const repuestos = r.repuestos || []
+                  const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
+                  return sum + net
+                }, 0)
+                const totalIva = +(totalNeto * 0.19).toFixed(2)
+                const total = +(totalNeto + totalIva).toFixed(2)
+                return total.toLocaleString('es-CL')
+              })()}
+            </span>
+          </div>
+          <div style={{ width: '1px', height: '20px', background: '#adb5bd' }}></div>
+          <button 
+            type="button" 
+            className="btn" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: '600'
+            }}
+            onClick={printReport}
+            title="Imprimir informe"
+          >
+            🖨️ Imprimir
+          </button>
+        </div>
         <div style={{ marginLeft: 12 }}>
           <input
             className="repairs-search"
@@ -255,6 +591,7 @@ export default function RepairList() {
 
 
   {loading ? <div>Cargando...</div> : (
+  <>
   <div className="table-wrap">
     <table className="clients-table repairs-table">
         <thead>
@@ -368,6 +705,7 @@ export default function RepairList() {
         </tbody>
     </table>
   </div>
+  </>
       )}
 
       {showForm && editing && (
@@ -533,6 +871,8 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
           <div class="signature">Atte.
 Víctor Sanhueza Puentes
 Centro Autorizado DELL V Región
+Tel: +56 9 97919374
+www.valpotec.cl
 </div>
         </div>
 
