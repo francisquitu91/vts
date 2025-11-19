@@ -823,6 +823,7 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
           <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Contacto</td><td style="padding:3px 6px;border:1px solid #eee">${r.correo || ''}${r.correo && r.telefono ? ' - ' : ''}${r.telefono || ''}</td></tr>
           <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Tipo de Pago</td><td style="padding:3px 6px;border:1px solid #eee">${r.tipo_pago || ''}</td></tr>
           <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Requerimiento</td><td style="padding:3px 6px;border:1px solid #eee">${r.falla || ''}</td></tr>
+          <tr><td style="font-weight:600;padding:3px 6px;border:1px solid #eee">Diagnóstico</td><td style="padding:3px 6px;border:1px solid #eee">${r.diagnostico || ''}</td></tr>
         </table>
 
         <div class="section">
@@ -1035,6 +1036,11 @@ www.valpotec.cl
         <div>
           <label>Falla reportada / Requerimiento</label>
           <textarea value={data.falla || ''} onChange={(e) => update('falla', e.target.value)} />
+        </div>
+
+        <div>
+          <label>Diagnóstico</label>
+          <textarea value={data.diagnostico || ''} onChange={(e) => update('diagnostico', e.target.value)} />
         </div>
 
         <hr />

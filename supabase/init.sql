@@ -30,15 +30,17 @@ create table if not exists public.repairs (
   serie text,
   accesorios text,
   falla text,
+  diagnostico text,
   observacion text,
   servicios jsonb,
   repuestos jsonb,
   created_at timestamptz default now()
 );
 
--- Ensure correo and telefono columns exist if the table was created earlier without them
+-- Ensure correo, telefono and diagnostico columns exist if the table was created earlier without them
 alter table if exists public.repairs add column if not exists correo text;
 alter table if exists public.repairs add column if not exists telefono text;
+alter table if exists public.repairs add column if not exists diagnostico text;
 
 -- Users table for admin/worker accounts (profiles linked to Supabase Auth - auth.users.uuid)
 create table if not exists public.users (

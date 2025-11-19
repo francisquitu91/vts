@@ -7,6 +7,7 @@ export default function ClientList() {
   const [editing, setEditing] = useState<Client | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchClients()
@@ -79,13 +80,42 @@ export default function ClientList() {
       <div className="clients-header">
         <h2>Lista de Clientes</h2>
       </div>
+
+      {/* Search bar */}
+      <div style={{ marginLeft: 12, marginBottom: 12, marginTop: 8 }}>
+        <input
+          className="repairs-search"
+          placeholder="Buscar por nombre, documento, correo o contacto..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ 
+            padding: '10px 16px',
+            fontSize: '14px',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            width: '100%',
+            maxWidth: '600px'
+          }}
+        />
+      </div>
+
       {loading ? <div>Cargando...</div> : (
         <table className="clients-table">
           <thead>
             <tr><th>#</th><th>Fecha</th><th>Nombre</th><th>Contacto</th><th>Correo</th><th>DNI</th><th>Acción</th></tr>
           </thead>
           <tbody>
-            {clients.map((c, i) => (
+            {clients.filter((c) => {
+              if (!searchQuery) return true
+              const q = searchQuery.toLowerCase()
+              const fullName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ').toLowerCase()
+              return (
+                fullName.includes(q) ||
+                (c.document || '').toLowerCase().includes(q) ||
+                (c.email || '').toLowerCase().includes(q) ||
+                (c.contact || '').toLowerCase().includes(q)
+              )
+            }).map((c, i) => (
               <tr key={c.id as string}>
                 <td>{i + 1}</td>
                 <td>{new Date(c.created_at || '').toLocaleString()}</td>

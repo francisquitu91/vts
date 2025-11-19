@@ -21,6 +21,7 @@ export type RepairRecord = {
   serie?: string
   accesorios?: string
   falla?: string
+  diagnostico?: string
   observacion?: string
   servicios?: any[]
   repuestos?: any[]
