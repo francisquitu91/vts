@@ -229,7 +229,7 @@ export default function RepairList() {
     const totalIva = +(totalNeto * 0.19).toFixed(2)
     const total = +(totalNeto + totalIva).toFixed(2)
 
-    const logo = 'https://valpotec.cl/wp-content/uploads/2024/07/LOGO.png'
+    const logo = 'https://i.postimg.cc/SNSmQmPM/LOGO.png'
     const reportDate = new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
     
     const rows = filteredRepairs.map((r, i) => {
@@ -776,7 +776,7 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
     const iva = +(net * 0.19).toFixed(2)
     const total = +(net + iva).toFixed(2)
     // Use external logo URL as requested
-    const logo = 'https://valpotec.cl/wp-content/uploads/2024/07/LOGO.png'
+    const logo = 'https://i.postimg.cc/SNSmQmPM/LOGO.png'
     const when = new Date(r.created_at || new Date()).toLocaleString()
 
     const rowsServicios = (servicios || []).map((s: any) => `<tr><td style="padding:8px;border-bottom:1px solid #eee">${(s.description||'')}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${formatCurrency(Number(s.value||0))}</td></tr>`).join('')
