@@ -84,12 +84,15 @@ export default function Sidebar({ onNavigate, onLogout, page }: { onNavigate: (p
             {/* render logos repeated several times to ensure the track fills the viewport */}
             {(() => {
               const logos = [
-                'https://valpotec.cl/wp-content/uploads/elementor/thumbs/lenovo-1-qo9psabeb0jcrn73dwxo4wpm60zfwqcec7jjbunipw.png',
-                'https://valpotec.cl/wp-content/uploads/elementor/thumbs/dell-2-qo9ps9dk46i2g18gjej1key5kn42p18o02w1ukoww4.png',
-                'https://valpotec.cl/wp-content/uploads/elementor/thumbs/msi-1-qo9psabeb0jcrn73dwxo4wpm60zfwqcec7jjbunipw.png',
-                'https://valpotec.cl/wp-content/uploads/elementor/thumbs/pngwing.com_-1-qo9psc72oolxev4d2xqx9w8jcsq6c4jv0guiaekqdg.png',
-                'https://valpotec.cl/wp-content/uploads/elementor/thumbs/samsung-2-qo9psd4wvin7qh2zxg5judzzy6ljjtnlclhzrojc78.png',
-                'https://static.vecteezy.com/system/resources/previews/014/414/662/non_2x/asus-logo-on-transparent-background-free-vector.jpg'
+                'https://static.vecteezy.com/system/resources/previews/014/414/662/non_2x/asus-logo-on-transparent-background-free-vector.jpg',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/200px-Acer_2011.svg.png',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Lenovo_logo_2015.svg/200px-Lenovo_logo_2015.svg.png',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/HP_logo_2012.svg/200px-HP_logo_2012.svg.png',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dell_logo_2016.svg/200px-Dell_logo_2016.svg.png',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Toshiba_logo.svg/200px-Toshiba_logo.svg.png',
+                'https://www.pngarts.com/files/3/Samsung-Logo-PNG-Transparent-Image.png',
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png',
+                'https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Huawei_Standard_logo.svg/200px-Huawei_Standard_logo.svg.png'
               ]
               const repeats = 4
               return Array.from({ length: repeats }).map((_, r) => (
