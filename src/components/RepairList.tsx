@@ -775,8 +775,8 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
     const net = (servicios || []).reduce((a: number, b: any) => a + (b.value || 0), 0) + (repuestos || []).reduce((a: number, b: any) => a + (b.price || 0), 0)
     const iva = +(net * 0.19).toFixed(2)
     const total = +(net + iva).toFixed(2)
-    // Use external logo URL as requested
-    const logo = 'https://i.postimg.cc/SNSmQmPM/LOGO.png'
+    // Use external logo URL as requested (estandarte 2000x200)
+    const logo = 'https://i.postimg.cc/MG6vT1sV/LOGO.png'
     const when = new Date(r.created_at || new Date()).toLocaleString()
 
     const rowsServicios = (servicios || []).map((s: any) => `<tr><td style="padding:8px;border-bottom:1px solid #eee">${(s.description||'')}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${formatCurrency(Number(s.value||0))}</td></tr>`).join('')
@@ -790,7 +790,8 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
         <style>
           @page { size: auto; margin: 10mm; }
           body{font-family:Arial,Helvetica,sans-serif;padding:8px;color:#333;font-size:11px;margin:0}
-          .header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+          .header{text-align:center;margin-bottom:12px}
+          .header img{width:100%;max-width:600px;height:auto}
           .company{margin-left:8px;font-size:10px;line-height:1.3}
           .company div{margin:1px 0}
           h2{font-size:13px;margin:8px 0 4px 0;border-bottom:1px solid #ddd;padding-bottom:2px}
@@ -800,16 +801,18 @@ function RepairForm({ initial, onSave, onCancel, clients, brands, deviceTypes }:
           td,th{padding:3px 6px}
           .totals td{padding:4px 8px;border:1px solid #ddd}
           .signature{margin-top:8px;white-space:pre-line;font-size:10px;line-height:1.3}
+          .footer{text-align:center;margin-top:16px;padding-top:12px;border-top:2px solid #333;font-size:10px;line-height:1.5}
+          .footer strong{font-size:11px}
           hr{margin:6px 0;border:none;border-top:1px solid #ddd}
         </style>
       </head>
       <body>
         <div class="header">
-          <img src="${logo}" style="width:120px" />
-          <div class="company">
-            <div><strong>Valpotec</strong></div>
-            <div>Av. Valparaíso 694 Of. 112-C - Viña del Mar</div>
-            <div>servicios@valpotec.cl</div>
+          <img src="${logo}" alt="Valpotec Logo" />
+          <div style="text-align:center;margin-top:8px;font-size:10px;line-height:1.5">
+            <strong>Valpotec</strong><br />
+            Av. Valparaíso 694 Of. 112-C - Viña del Mar<br />
+            servicios@valpotec.cl
           </div>
         </div>
 
