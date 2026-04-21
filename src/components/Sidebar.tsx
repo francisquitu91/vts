@@ -85,20 +85,27 @@ export default function Sidebar({ onNavigate, onLogout, page }: { onNavigate: (p
             {(() => {
               const logos = [
                 'https://static.vecteezy.com/system/resources/previews/014/414/662/non_2x/asus-logo-on-transparent-background-free-vector.jpg',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/200px-Acer_2011.svg.png',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Lenovo_logo_2015.svg/200px-Lenovo_logo_2015.svg.png',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/HP_logo_2012.svg/200px-HP_logo_2012.svg.png',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dell_logo_2016.svg/200px-Dell_logo_2016.svg.png',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Toshiba_logo.svg/200px-Toshiba_logo.svg.png',
                 'https://www.pngarts.com/files/3/Samsung-Logo-PNG-Transparent-Image.png',
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png',
-                'https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Huawei_Standard_logo.svg/200px-Huawei_Standard_logo.svg.png'
+                'https://i.postimg.cc/cL9VHYKX/logo-sony.jpg',
+                'https://i.postimg.cc/HLt8XYmC/Dell-Logo.png',
+                'https://i.postimg.cc/tTMTN7Mb/HP-logo-2025-svg.png',
+                'https://i.postimg.cc/0ynJJ5xh/images.png'
               ]
               const repeats = 4
               return Array.from({ length: repeats }).map((_, r) => (
                 <React.Fragment key={r}>
                   {logos.map((src, i) => (
-                    <img key={`${r}-${i}`} src={src} alt={`logo-${i}`} />
+                    <img
+                      key={`${r}-${i}`}
+                      src={src}
+                      alt={`logo-${i}`}
+                      className={
+                        src === 'https://www.pngarts.com/files/3/Samsung-Logo-PNG-Transparent-Image.png' ||
+                        src === 'https://i.postimg.cc/HLt8XYmC/Dell-Logo.png'
+                          ? 'logo-small'
+                          : undefined
+                      }
+                    />
                   ))}
                 </React.Fragment>
               ))

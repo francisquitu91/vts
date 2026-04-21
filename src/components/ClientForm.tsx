@@ -28,6 +28,7 @@ export default function ClientForm({ initial, onSave, onCancel }: { initial?: Cl
   return (
     <div className="modal">
       <form className="modal-content" onSubmit={submit}>
+        <button type="button" className="modal-close" onClick={onCancel} aria-label="Cerrar">x</button>
         <h3>{initial ? 'Actualizar cliente' : 'Agregar nuevo cliente'}</h3>
         <div className="form-row">
           <div>

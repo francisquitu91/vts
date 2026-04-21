@@ -596,23 +596,15 @@ export default function RepairList() {
     <table className="clients-table repairs-table">
         <thead>
           <tr>
-            <th>#</th>
             <th>Fecha</th>
             <th>Nro</th>
             <th>Cliente (RUT)</th>
             <th>Estado Pago</th>
             <th>Estado Reparación</th>
-            <th>Tipo Pago</th>
             <th>Tipo Equipo</th>
             <th>Marca</th>
-            <th>Modelo</th>
-            <th>Serie</th>
-            <th>Accesorios</th>
             <th>Falla</th>
-            <th>Observación</th>
             <th>Valor Neto</th>
-            <th>IVA</th>
-            <th>Total</th>
             <th>Acción</th>
           </tr>
         </thead>
@@ -670,31 +662,21 @@ export default function RepairList() {
             ]
 
             return candidates.some((f) => (f || '').toString().toLowerCase().includes(q))
-          }).map((r, i) => {
+          }).map((r) => {
             const servicios = r.servicios || []
             const repuestos = r.repuestos || []
             const net = servicios.reduce((a: number, b: any) => a + (b.value || 0), 0) + repuestos.reduce((a: number, b: any) => a + (b.price || 0), 0)
-            const iva = +(net * 0.19).toFixed(2)
-            const total = +(net + iva).toFixed(2)
             return (
               <tr key={r.id}>
-                <td>{i + 1}</td>
                 <td>{new Date(r.created_at || '').toLocaleDateString()}</td>
                 <td>{r.nro}</td>
                 <td>{r.client_name ?? '-'} {r.client_rut ? `(${r.client_rut})` : ''}</td>
                 <td>{r.estado_pago}</td>
                 <td>{r.estado_reparacion}</td>
-                <td>{r.tipo_pago}</td>
                 <td>{r.tipo_equipo}</td>
                 <td>{r.marca}</td>
-                <td>{r.modelo}</td>
-                <td>{r.serie}</td>
-                <td>{r.accesorios}</td>
                 <td>{r.falla}</td>
-                <td>{r.observacion}</td>
                 <td>{net.toLocaleString()}</td>
-                <td>{iva.toLocaleString()}</td>
-                <td>{total.toLocaleString()}</td>
                 <td>
                   <button onClick={() => { setEditing(r); setShowForm(true) }}>Editar</button>
                   <button className="btn danger" onClick={() => remove(r.id as string)}>Eliminar</button>
@@ -924,6 +906,7 @@ www.valpotec.cl
   return (
     <div className="modal">
   <form className="modal-content" onSubmit={submit}>
+        <button type="button" className="modal-close" onClick={onCancel} aria-label="Cerrar">x</button>
         <h3>Actualizar Reparación</h3>
         <div className="form-row">
           <div>

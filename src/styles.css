@@ -48,6 +48,7 @@ html,body,#root{height:100%;margin:0}
 .brand-top{position:fixed;left:260px;right:0;top:0;height:64px;background:#fff;display:flex;align-items:center;padding:8px 20px;border-bottom:1px solid #eee;z-index:20}
 .brand-row{display:flex;gap:0;align-items:center;justify-content:flex-start;overflow:hidden;width:100%;padding:0 8px}
 .brand-row img{height:40px;object-fit:contain;background:transparent;padding:0;margin:0;display:inline-block}
+.brand-row img.logo-small{height:28px}
 
 /* hide native scrollbar if any */
 .brand-row::-webkit-scrollbar{display:none}
@@ -66,6 +67,7 @@ html,body,#root{height:100%;margin:0}
 @media (max-width:800px){
 	.brand-track{gap:20px;animation-duration:14s}
 	.brand-row img{height:32px}
+	.brand-row img.logo-small{height:24px}
 }
 
 /* ensure main content is pushed below the fixed brand bar */
@@ -123,8 +125,10 @@ html,body,#root{height:100%;margin:0}
 .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,0.06)}
 
 .btn-group{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
-.modal-content{background:#fff;padding:20px;border-radius:8px;max-width:95vw;width:760px;box-sizing:border-box;max-height:90vh;overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-content{background:#fff;padding:20px;border-radius:8px;max-width:95vw;width:760px;box-sizing:border-box;max-height:90vh;overflow:auto;position:relative}
+.modal-close{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:999px;border:1px solid #ddd;background:#fff;color:#333;font-size:18px;line-height:1;cursor:pointer}
+.modal-close:hover{background:#f3f3f3}
 .form-row{display:flex;gap:12px}
 .form-row > div{flex:1}
 label{display:block;font-weight:600;margin-bottom:6px}
@@ -156,6 +160,7 @@ input,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px}
 /* Prevent main content from overflowing horizontally */
 .main{overflow-x:hidden}
 .repairs-table{margin-top:18px}
+.repairs-table th,.repairs-table td{font-size:13px}
 
 /* Floating action button */
 .fab{position:fixed;right:28px;bottom:28px;padding:14px 18px;border-radius:999px;font-size:18px;box-shadow:0 6px 18px rgba(0,0,0,0.15);border:0}

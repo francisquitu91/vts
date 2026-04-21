@@ -100,37 +100,39 @@ export default function ClientList() {
       </div>
 
       {loading ? <div>Cargando...</div> : (
-        <table className="clients-table">
-          <thead>
-            <tr><th>#</th><th>Fecha</th><th>Nombre</th><th>Contacto</th><th>Correo</th><th>DNI</th><th>Acción</th></tr>
-          </thead>
-          <tbody>
-            {clients.filter((c) => {
-              if (!searchQuery) return true
-              const q = searchQuery.toLowerCase()
-              const fullName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ').toLowerCase()
-              return (
-                fullName.includes(q) ||
-                (c.document || '').toLowerCase().includes(q) ||
-                (c.email || '').toLowerCase().includes(q) ||
-                (c.contact || '').toLowerCase().includes(q)
-              )
-            }).map((c, i) => (
-              <tr key={c.id as string}>
-                <td>{i + 1}</td>
-                <td>{new Date(c.created_at || '').toLocaleString()}</td>
-                <td>{[c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ')}</td>
-                <td>{c.contact}</td>
-                <td>{c.email}</td>
-                <td>{c.document}</td>
-                <td>
-                  <button onClick={() => { setEditing({ id: c.id as string, firstName: c.first_name || '', middleName: c.middle_name || '', lastName: c.last_name || '', document: c.document || '', email: c.email || '', contact: c.contact || '', address: c.address || '' }); setShowForm(true) }}>Editar</button>
-                  <button onClick={() => handleDelete(c.id)} className="danger">Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table className="clients-table">
+            <thead>
+              <tr><th>#</th><th>Fecha</th><th>Nombre</th><th>Contacto</th><th>Correo</th><th>DNI</th><th>Acción</th></tr>
+            </thead>
+            <tbody>
+              {clients.filter((c) => {
+                if (!searchQuery) return true
+                const q = searchQuery.toLowerCase()
+                const fullName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ').toLowerCase()
+                return (
+                  fullName.includes(q) ||
+                  (c.document || '').toLowerCase().includes(q) ||
+                  (c.email || '').toLowerCase().includes(q) ||
+                  (c.contact || '').toLowerCase().includes(q)
+                )
+              }).map((c, i) => (
+                <tr key={c.id as string}>
+                  <td>{i + 1}</td>
+                  <td>{new Date(c.created_at || '').toLocaleString()}</td>
+                  <td>{[c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ')}</td>
+                  <td>{c.contact}</td>
+                  <td>{c.email}</td>
+                  <td>{c.document}</td>
+                  <td>
+                    <button onClick={() => { setEditing({ id: c.id as string, firstName: c.first_name || '', middleName: c.middle_name || '', lastName: c.last_name || '', document: c.document || '', email: c.email || '', contact: c.contact || '', address: c.address || '' }); setShowForm(true) }}>Editar</button>
+                    <button onClick={() => handleDelete(c.id)} className="danger">Eliminar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {showForm && (
