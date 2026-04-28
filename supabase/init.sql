@@ -1,3 +1,5 @@
+create extension if not exists "uuid-ossp";
+
 -- Supabase SQL to create clients table
 create table if not exists public.clients (
   id uuid primary key default uuid_generate_v4(),
@@ -10,6 +12,17 @@ create table if not exists public.clients (
   address text,
   created_at timestamptz default now()
 );
+
+alter table public.clients enable row level security;
+drop policy if exists clients_read_all on public.clients;
+create policy clients_read_all on public.clients
+  for select to anon, authenticated
+  using (true);
+drop policy if exists clients_write_all on public.clients;
+create policy clients_write_all on public.clients
+  for all to anon, authenticated
+  using (true)
+  with check (true);
 
 -- Repairs table
 create table if not exists public.repairs (
@@ -37,6 +50,17 @@ create table if not exists public.repairs (
   created_at timestamptz default now()
 );
 
+alter table public.repairs enable row level security;
+drop policy if exists repairs_read_all on public.repairs;
+create policy repairs_read_all on public.repairs
+  for select to anon, authenticated
+  using (true);
+drop policy if exists repairs_write_all on public.repairs;
+create policy repairs_write_all on public.repairs
+  for all to anon, authenticated
+  using (true)
+  with check (true);
+
 -- Ensure correo, telefono and diagnostico columns exist if the table was created earlier without them
 alter table if exists public.repairs add column if not exists correo text;
 alter table if exists public.repairs add column if not exists telefono text;
@@ -52,6 +76,17 @@ create table if not exists public.users (
   role text default 'worker', -- 'admin' or 'worker'
   created_at timestamptz default now()
 );
+
+alter table public.users enable row level security;
+drop policy if exists users_read_all on public.users;
+create policy users_read_all on public.users
+  for select to anon, authenticated
+  using (true);
+drop policy if exists users_write_all on public.users;
+create policy users_write_all on public.users
+  for all to anon, authenticated
+  using (true)
+  with check (true);
 
 -- Add a local_password column for temporary local admin password storage (optional)
 alter table if exists public.users add column if not exists local_password text;
@@ -79,6 +114,17 @@ create table if not exists public.brands (
   created_at timestamptz default now()
 );
 
+alter table public.brands enable row level security;
+drop policy if exists brands_read_all on public.brands;
+create policy brands_read_all on public.brands
+  for select to anon, authenticated
+  using (true);
+drop policy if exists brands_write_all on public.brands;
+create policy brands_write_all on public.brands
+  for all to anon, authenticated
+  using (true)
+  with check (true);
+
 create table if not exists public.models (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
@@ -86,9 +132,31 @@ create table if not exists public.models (
   created_at timestamptz default now()
 );
 
+alter table public.models enable row level security;
+drop policy if exists models_read_all on public.models;
+create policy models_read_all on public.models
+  for select to anon, authenticated
+  using (true);
+drop policy if exists models_write_all on public.models;
+create policy models_write_all on public.models
+  for all to anon, authenticated
+  using (true)
+  with check (true);
+
 -- Device types table (Tipo Equipo autogestionable)
 create table if not exists public.device_types (
   id uuid primary key default uuid_generate_v4(),
   name text unique not null,
   created_at timestamptz default now()
 );
+
+alter table public.device_types enable row level security;
+drop policy if exists device_types_read_all on public.device_types;
+create policy device_types_read_all on public.device_types
+  for select to anon, authenticated
+  using (true);
+drop policy if exists device_types_write_all on public.device_types;
+create policy device_types_write_all on public.device_types
+  for all to anon, authenticated
+  using (true)
+  with check (true);

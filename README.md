@@ -19,6 +19,18 @@ El servidor de desarrollo iniciará y mostrará la app. Abre la URL que indique 
 Notas:
 - Prototipo para arrancar el proyecto. Siguientes pasos: añadir API backend, autenticación real, base de datos en servidor y más funcionalidades.
 
+Migración de datos a otro proyecto Supabase
+------------------------------------------
+
+La pantalla de Configuración ahora incluye dos zonas:
+
+1. Exportar: descarga un Excel con hojas separadas para marcas, tipos de equipo, modelos, clientes, usuarios y reparaciones.
+2. Importar: toma ese mismo Excel y lo carga en el proyecto destino de Supabase.
+
+Antes de importar, aplica primero el SQL del esquema en el proyecto destino. La importación preserva los IDs para mantener las relaciones entre tablas.
+
+Si el proyecto destino tiene RLS activado, asegúrate de permitir inserts/updates con la key publicada usada por la migración o de desactivar temporalmente esas restricciones mientras haces la carga inicial.
+
 Deploy a Render (static site)
 --------------------------------
 
